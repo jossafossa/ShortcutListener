@@ -1,5 +1,5 @@
 import { expect, describe, it, vi } from "vitest";
-import { ShortcutListener } from "./ShortcutListener";
+import { ShortcutEvent, ShortcutListener } from "./ShortcutListener";
 
 describe("ShortcutListener", async () => {
   it("can be instantiated", () => {
@@ -32,23 +32,26 @@ describe("ShortcutListener", async () => {
       ["control", "meta", "shift", "alt", "b"],
       { metaKey: true, altKey: true, shiftKey: true, ctrlKey: true, key: "b" },
     ],
-  ])("fires the correct events for '%s'", (keysExpect, keySetExpect, event) => {
-    const root = document.createElement("div");
-    const listener = new ShortcutListener({ root });
+  ])(
+    "fires the correct events for '%s'",
+    (shortcutExpect, keysExpect, event) => {
+      const root = document.createElement("div");
+      const listener = new ShortcutListener({ root });
 
-    listener.on("shortcutdown", ({ keys, keySet }) => {
-      expect(keys).toBe(keysExpect);
-      expect([...keySet]).toStrictEqual(keySetExpect);
-    });
+      listener.on("shortcutdown", ({ keys, shortcut }) => {
+        expect(shortcut).toBe(shortcutExpect);
+        expect([...keys]).toStrictEqual(keysExpect);
+      });
 
-    listener.on("shortcutup", ({ keys, keySet }) => {
-      expect(keys).toBe(keysExpect);
-      expect([...keySet]).toStrictEqual(keySetExpect);
-    });
+      listener.on("shortcutup", ({ keys, shortcut }) => {
+        expect(shortcut).toBe(shortcutExpect);
+        expect([...keys]).toStrictEqual(keysExpect);
+      });
 
-    root.dispatchEvent(new KeyboardEvent("keydown", event));
-    root.dispatchEvent(new KeyboardEvent("keyup", event));
-  });
+      root.dispatchEvent(new KeyboardEvent("keydown", event));
+      root.dispatchEvent(new KeyboardEvent("keyup", event));
+    }
+  );
 
   it("does not fire on keyboard events from external elements", () => {
     const root = document.createElement("div");
@@ -94,5 +97,26 @@ describe("ShortcutListener", async () => {
     root.dispatchEvent(new KeyboardEvent("keydown", { key: "a" }));
 
     expect(callback).not.toHaveBeenCalled();
+  });
+});
+
+describe("ShortcutEvent", () => {
+  it("can be instantiated", () => {
+    const event = new ShortcutEvent("shortcutdown");
+    expect(event).toBeDefined();
+  });
+
+  it("can be iterated over", () => {
+    const keys = new Set(["a", "b", "c"]);
+    const event = new ShortcutEvent("shortcutdown", { keys });
+
+    expect([...event]).toStrictEqual(["a", "b", "c"]);
+  });
+
+  it("can be converted to a string", () => {
+    const keys = new Set(["a", "b", "c"]);
+    const shortcut = new ShortcutEvent("shortcutdown", { keys });
+
+    expect(`the shortcut is ${shortcut}`).toBe("the shortcut is a+b+c");
   });
 });

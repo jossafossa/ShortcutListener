@@ -13,8 +13,8 @@ type ShortcutEventOptions = {
 type ShortcutEventType = "shortcutdown" | "shortcutup";
 
 export class ShortcutEvent extends Event {
-  keySet: KeySet;
-  keys: string;
+  keys: KeySet;
+  shortcut: string;
 
   constructor(
     type: ShortcutEventType,
@@ -22,12 +22,21 @@ export class ShortcutEvent extends Event {
   ) {
     super(type);
 
-    this.keySet = keys;
-    this.keys = this.#keysToString(keys);
+    this.keys = keys;
+    this.shortcut = this.#keysToString(keys);
   }
 
   #keysToString(keys: KeySet): string {
     return [...keys].join("+");
+  }
+
+  [Symbol.iterator]() {
+    return this.keys[Symbol.iterator]();
+  }
+
+  // toString
+  [Symbol.toPrimitive]() {
+    return this.shortcut;
   }
 }
 
