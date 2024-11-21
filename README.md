@@ -6,9 +6,11 @@ A simple class to listen for keyboard shortcuts
 
 ### 1. Install
 
-```shell
+
+
+<!-- ```shell
 npm install shortcodeListener
-```
+``` -->
 
 ### 2. Listen for shortcuts
 
