@@ -15,6 +15,7 @@ type ShortcutEventType = "shortcutdown" | "shortcutup";
 export class ShortcutEvent extends Event {
   keys: KeySet;
   shortcut: string;
+  matches: (shortcut: string) => boolean;
   #keysAliasses = new Map([
     ["up", "arrowup"],
     ["down", "arrowdown"],
@@ -41,6 +42,7 @@ export class ShortcutEvent extends Event {
     super(type);
 
     this.keys = keys;
+    this.matches = this.#matches.bind(this);
     this.shortcut = this.#keysToString(keys);
   }
 
@@ -48,7 +50,7 @@ export class ShortcutEvent extends Event {
     return this.#keysAliasses.get(key) || key;
   }
 
-  matches(shortcut: string): boolean {
+  #matches(shortcut: string): boolean {
     const keys = new Set(shortcut.toLowerCase().split("+"));
 
     if (keys.size !== this.keys.size) return false;
