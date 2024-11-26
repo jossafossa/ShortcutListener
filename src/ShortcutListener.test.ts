@@ -15,22 +15,27 @@ describe("ShortcutListener", async () => {
 
   it.each([
     ["a", ["a"], { key: "a" }],
-    ["shift+a", ["shift", "a"], { key: "A", shiftKey: true }],
-    ["shift+]", ["shift", "]"], { key: "]", shiftKey: true }],
-    ["control+a", ["control", "a"], { key: "a", ctrlKey: true }],
-    ["control+a", ["control", "a"], { key: "a", ctrlKey: true }],
-    ["meta+a", ["meta", "a"], { key: "a", metaKey: true }],
-    ["alt+a", ["alt", "a"], { key: "a", altKey: true }],
-    ["shift+a", ["shift", "a"], { key: "a", shiftKey: true }],
+    ["Shift+a", ["Shift", "a"], { key: "A", shiftKey: true }],
+    ["Shift+]", ["Shift", "]"], { key: "]", shiftKey: true }],
+    ["Control+a", ["Control", "a"], { key: "a", ctrlKey: true }],
+    ["Control+a", ["Control", "a"], { key: "a", ctrlKey: true }],
+    ["Meta+a", ["Meta", "a"], { key: "a", metaKey: true }],
+    ["Alt+a", ["Alt", "a"], { key: "a", altKey: true }],
+    ["Shift+a", ["Shift", "a"], { key: "a", shiftKey: true }],
     [
-      "control+meta+shift+alt+b",
-      ["control", "meta", "shift", "alt", "b"],
+      "Control+Meta+Shift+Alt+b",
+      ["Control", "Meta", "Shift", "Alt", "b"],
       { key: "b", ctrlKey: true, shiftKey: true, altKey: true, metaKey: true },
     ],
     [
-      "control+meta+shift+alt+b",
-      ["control", "meta", "shift", "alt", "b"],
+      "Control+Meta+Shift+Alt+b",
+      ["Control", "Meta", "Shift", "Alt", "b"],
       { metaKey: true, altKey: true, shiftKey: true, ctrlKey: true, key: "b" },
+    ],
+    [
+      "Control+ArrowUp",
+      ["Control", "ArrowUp"],
+      { key: "ArrowUp", ctrlKey: true },
     ],
   ])(
     "fires the correct events for '%s'",
@@ -104,6 +109,35 @@ describe("ShortcutEvent", () => {
   it("can be instantiated", () => {
     const event = new ShortcutEvent("shortcutdown");
     expect(event).toBeDefined();
+  });
+
+  it.each([
+    ["cmd+option+k", ["meta", "alt", "K"]],
+    ["cmd+option+K", ["Meta", "Alt", "k"]],
+    ["CMD+OPTION+K", ["Meta", "Alt", "k"]],
+    ["ctrl+shift+up", ["control", "shift", "arrowup"]],
+    ["command+shift+down", ["meta", "shift", "arrowdown"]],
+    ["ctrl+option+left", ["control", "alt", "arrowleft"]],
+    ["ctrl+shift+right", ["control", "shift", "arrowright"]],
+    ["ctrl+shift+space", ["control", "shift", "space"]],
+    ["ctrl+shift+del", ["control", "shift", "delete"]],
+    ["ctrl+shift+bksp", ["control", "shift", "backspace"]],
+    ["ctrl+shift+return", ["control", "shift", "enter"]],
+    ["ctrl+shift+esc", ["control", "shift", "escape"]],
+    ["ctrl+shift+pgup", ["control", "shift", "pageup"]],
+    ["ctrl+shift+pgdn", ["control", "shift", "pagedown"]],
+  ])("%s matches to %s", (alias, keys) => {
+    const event = new ShortcutEvent("shortcutdown", { keys: new Set(keys) });
+    expect(event.matches(alias)).toBe(true);
+  });
+
+  it.each([
+    ["cmd+k", ["meta", "alt", "k"]],
+    ["ctrl+shift+up", ["control", "arrowdown"]],
+    ["command+shift+down", ["meta", "shift", "arrowup"]],
+  ])("%s does not match to %s", (alias, keys) => {
+    const event = new ShortcutEvent("shortcutdown", { keys: new Set(keys) });
+    expect(event.matches(alias)).toBe(false);
   });
 
   it("can be iterated over", () => {

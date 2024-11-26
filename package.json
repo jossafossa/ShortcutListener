@@ -3,7 +3,7 @@
   "description": "A simple class to listen for keyboard shortcuts",
   "author": "Joost Hobma",
   "license": "MIT",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "homepage": "https://github.com/jossafossa/ShortcutListener",
   "issues": "https://github.com/jossafossa/ShortcutListener/issues",
@@ -23,7 +23,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest --run --coverage",
     "prepare": "husky",
-    "prepublishOnly": "pnpm run typecheck && pnpm run test  && pnpm run build",
+    "check": "pnpm run typecheck && pnpm run test && pnpm run build",
+    "prepublishOnly": "pnpm run check",
     "release": "pnpm publish"
   },
   "exports": {

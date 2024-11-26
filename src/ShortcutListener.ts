@@ -15,6 +15,24 @@ type ShortcutEventType = "shortcutdown" | "shortcutup";
 export class ShortcutEvent extends Event {
   keys: KeySet;
   shortcut: string;
+  #keysAliasses = new Map([
+    ["up", "arrowup"],
+    ["down", "arrowdown"],
+    ["left", "arrowleft"],
+    ["right", "arrowright"],
+    [" ", "space"],
+    ["plus", "+"],
+    ["ctrl", "control"],
+    ["cmd", "meta"],
+    ["command", "meta"],
+    ["option", "alt"],
+    ["bksp", "backspace"],
+    ["del", "delete"],
+    ["return", "enter"],
+    ["esc", "escape"],
+    ["pgup", "pageup"],
+    ["pgdn", "pagedown"],
+  ]);
 
   constructor(
     type: ShortcutEventType,
@@ -24,6 +42,24 @@ export class ShortcutEvent extends Event {
 
     this.keys = keys;
     this.shortcut = this.#keysToString(keys);
+  }
+
+  #getAlias(key: Key): Key {
+    return this.#keysAliasses.get(key) || key;
+  }
+
+  matches(shortcut: string): boolean {
+    const keys = new Set(shortcut.toLowerCase().split("+"));
+
+    if (keys.size !== this.keys.size) return false;
+
+    const aliases = [...keys].map((key) => this.#getAlias(key));
+
+    for (const key of this.keys) {
+      if (!aliases.includes(key.toLowerCase())) return false;
+    }
+
+    return true;
   }
 
   #keysToString(keys: KeySet): string {
@@ -54,15 +90,19 @@ export class ShortcutListener extends EventTarget {
     this.#root.addEventListener("keyup", (event) => this.#handleKeyUp(event));
   }
 
+  #getKey({ key }: KeyboardEvent): Key {
+    return key.length === 1 ? key.toLowerCase() : key;
+  }
+
   #getKeys(event: KeyboardEvent): KeySet {
     const keys: KeySet = new Set();
 
-    if (event.ctrlKey) keys.add("control");
-    if (event.metaKey) keys.add("meta");
-    if (event.shiftKey) keys.add("shift");
-    if (event.altKey) keys.add("alt");
+    if (event.ctrlKey) keys.add("Control");
+    if (event.metaKey) keys.add("Meta");
+    if (event.shiftKey) keys.add("Shift");
+    if (event.altKey) keys.add("Alt");
 
-    keys.add(event.key.toLowerCase());
+    keys.add(this.#getKey(event));
 
     return keys;
   }
